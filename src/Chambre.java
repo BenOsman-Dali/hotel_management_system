@@ -1,15 +1,21 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
-
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+public abstract class Chambre {
+    private int numéro;
+    private String type;
+    private double prixParNuit;
+    private String état;
+    private int capacité;
+    public Chambre(int numéro, double prixParNuit, int capacité) {
+        this.numéro = numéro;
+        this.prixParNuit = prixParNuit;
+        this.capacité = capacité;
+        this.état = "libre";
     }
+
+    public int getNumero() { return numéro; }
+    public double getPrixParNuit() { return prixParNuit; }
+    public String getEtat() { return état; }
+    public void setEtat(String etat) { this.état = état; }
+    public int getCapacite() { return capacité; }
+
+    public abstract String getType();
 }
