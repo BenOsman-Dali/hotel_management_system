@@ -1,7 +1,7 @@
 public class ChambreDouble extends Chambre {
-    public ChambreDouble(int numéro, double prixParNuit, int capacité){
-        super(numéro, prixParNuit, 2);
+    public ChambreDouble(int numero) {
+        super(numero, 80.0, 2);
     }
     @Override
-    public String getType() {return "Double";}
+    public String getType() { return "Double"; }
 }

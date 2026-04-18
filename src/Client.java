@@ -1,16 +1,19 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
-public class Client {
+public class Client implements Serializable {
     private String nom;
     private String prenom;
+    private String email;
     private int nombreSejours;
     private double tauxReduction;
     private List<Reservation> historique;
 
-    public Client(String nom, String prenom) {
+    public Client(String nom, String prenom, String email) {
         this.nom = nom;
         this.prenom = prenom;
+        this.email = email;
         this.nombreSejours = 0;
         this.tauxReduction = 0.0;
         this.historique = new ArrayList<>();
@@ -18,6 +21,7 @@ public class Client {
 
     public String getNom() { return nom; }
     public String getPrenom() { return prenom; }
+    public String getEmail() { return email; }
     public int getNombreSejours() { return nombreSejours; }
     public double getTauxReduction() { return tauxReduction; }
     public List<Reservation> getHistorique() { return historique; }
@@ -29,15 +33,11 @@ public class Client {
     }
 
     private void mettreAJourFidelite() {
-        if (nombreSejours >= 10) {
-            this.tauxReduction = 0.20;
-        } else if (nombreSejours >= 5) {
-            this.tauxReduction = 0.10;
-        } else {
-            this.tauxReduction = 0.0;
-        }
+        if (nombreSejours >= 10) tauxReduction = 0.20;
+        else if (nombreSejours >= 5) tauxReduction = 0.10;
+        else tauxReduction = 0.0;
     }
-
+    // S'assurer que cette méthode existe (appelée dans MenuAdmin) :
     public void afficherHistorique() {
         System.out.println("Historique de " + prenom + " " + nom + " :");
         for (Reservation r : historique) {
@@ -45,5 +45,10 @@ public class Client {
                     " du " + r.getDateDebut() + " au " + r.getDateFin());
         }
         System.out.println("Total séjours : " + nombreSejours + " | Réduction : " + (tauxReduction * 100) + "%");
+    }
+    // Ajouter cette méthode dans Client.java :
+    public void laisserAvis(Hotel hotel, int note, String commentaire) {
+        Avis avis = new Avis(this, hotel, note, commentaire);
+        GestionAvis.ajouterAvis(avis);
     }
 }

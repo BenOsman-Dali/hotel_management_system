@@ -1,16 +1,16 @@
 public enum TypeService {
-    PETIT_DEJEUNER("Petit-déjeuner"),
-    BLANCHISSERIE("Blanchisserie"),
-    ROOM_SERVICE("Room Service"),
-    TRANSPORT("Transport");
+    PETIT_DEJEUNER(15.0),
+    BLANCHISSERIE(20.0),
+    ROOM_SERVICE(25.0),
+    TRANSPORT(50.0);
 
-    private final String libelle;
+    private final double prixBase;
 
-    TypeService(String libelle) {
-        this.libelle = libelle;
+    TypeService(double prixBase) {
+        this.prixBase = prixBase;
     }
 
-    public String getLibelle() {
-        return libelle;
+    public double getPrixBase() {
+        return prixBase;
     }
 }
