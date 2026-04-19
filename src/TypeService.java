@@ -1,4 +1,6 @@
-public enum TypeService {
+import java.io.Serializable;
+
+public enum TypeService implements Serializable {
     PETIT_DEJEUNER(15.0),
     BLANCHISSERIE(20.0),
     ROOM_SERVICE(25.0),

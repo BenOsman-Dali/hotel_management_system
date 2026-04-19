@@ -10,7 +10,6 @@ public class GestionClients implements Serializable {
         System.out.println("✅ Client ajouté : " + client.getPrenom() + " " + client.getNom());
     }
 
-    // ✅ CORRECTION ICI - Comparer avec getEmail() au lieu de getNom()
     public static Client trouverClient(String email) {
         for (Client c : listeClients) {
             if (c.getEmail().equalsIgnoreCase(email)) {
@@ -22,6 +21,9 @@ public class GestionClients implements Serializable {
 
     public static List<Client> getlisteClients() {
         return listeClients;
+    }
+    public static void setlisteClients(List<Client> clients) {
+        listeClients = clients != null ? clients : new ArrayList<>();
     }
 
     public static void afficherTousLesClients() {

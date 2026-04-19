@@ -25,6 +25,9 @@ public class GestionAvis implements Serializable {
         }
         return count > 0 ? (double) total / count : 0;
     }
+    public static void setAvis(List<Avis> newAvis) {
+        listeAvis = newAvis != null ? newAvis : new ArrayList<>();
+    }
 
     public static void afficherAvis(Hotel hotel) {
         System.out.println("\n┌────────────────────────────────────────────┐");

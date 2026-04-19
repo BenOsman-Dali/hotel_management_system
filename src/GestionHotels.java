@@ -27,6 +27,10 @@ public class GestionHotels implements Serializable {
         return hotels;
     }
 
+    public static void setHotels(List<Hotel> newHotels) {
+        hotels = newHotels != null ? newHotels : new ArrayList<>();
+    }
+
     public static void afficherHotels() {
         System.out.println("\n┌────────────────────────────────────────────┐");
         System.out.println("│              LISTE DES HÔTELS              │");

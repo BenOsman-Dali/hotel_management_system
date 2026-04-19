@@ -76,4 +76,12 @@ public class GestionReservations implements Serializable {
         }
         return null;
     }
+    public static void setReservations(List<Reservation> newReservations) {
+        reservations = newReservations != null ? newReservations : new ArrayList<>();
+        // Mettre à jour le compteur ID
+        if (!reservations.isEmpty()) {
+            int maxId = reservations.stream().mapToInt(Reservation::getId).max().orElse(0);
+            compteurId = maxId + 1;
+        }
+    }
 }

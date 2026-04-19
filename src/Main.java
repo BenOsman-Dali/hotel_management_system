@@ -1,4 +1,5 @@
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -249,15 +250,34 @@ public class Main {
                     System.out.println("\n┌────────────────────────────────────────────┐");
                     System.out.println("│            ÉTAT DES CHAMBRES               │");
                     System.out.println("└────────────────────────────────────────────┘");
-                    // ✅ Utiliser GestionChambres.getChambres()
+
+                    // ✅ Codes couleurs pour les chambres
+                    String RESET = "\u001B[0m";
+                    String GREEN = "\u001B[32m";
+                    String RED = "\u001B[31m";
+                    String YELLOW = "\u001B[33m";
+
                     for (Chambre ch : GestionChambres.getChambres()) {
-                        String etatIcon = ch.getEtat() == EtatChambre.LIBRE ? "🟢" :
-                                ch.getEtat() == EtatChambre.OCCUPEE ? "🔴" : "🟠";
-                        System.out.println(etatIcon + " Chambre " + ch.getNumero() +
-                                " (" + ch.getType() + ") | " + ch.getEtat() +
+                        String couleur;
+                        String etatText;
+
+                        if (ch.getEtat() == EtatChambre.LIBRE) {
+                            couleur = GREEN;
+                            etatText = "LIBRE      ";
+                        } else if (ch.getEtat() == EtatChambre.OCCUPEE) {
+                            couleur = RED;
+                            etatText = "OCCUPEE    ";
+                        } else {
+                            couleur = YELLOW;
+                            etatText = "MAINTENANCE";
+                        }
+
+                        System.out.println(couleur + "●" + RESET + " Chambre " + ch.getNumero() +
+                                " (" + ch.getType() + ") | " + couleur + etatText + RESET +
                                 " | " + ch.getPrixParNuit() + "€/nuit | Cap: " + ch.getCapacite());
                     }
                     break;
+
                 case 2:
                     System.out.print("🔢 Numéro de chambre : ");
                     int numMaint = scanner.nextInt();
@@ -270,6 +290,7 @@ public class Main {
                         System.out.println("❌ Chambre non trouvée");
                     }
                     break;
+
                 case 3:
                     System.out.print("🔢 Numéro de chambre : ");
                     int numLib = scanner.nextInt();
@@ -282,9 +303,11 @@ public class Main {
                         System.out.println("❌ Chambre non trouvée");
                     }
                     break;
+
                 case 4:
                     retour = true;
                     break;
+
                 default:
                     System.out.println("❌ Choix invalide");
             }
@@ -445,65 +468,26 @@ public class Main {
         while (!retour) {
             System.out.println("\n╔════════════════════════════════════════════╗");
             System.out.println("║           GESTION FACTURATION              ║");
-            System.out.println("════════════════════════════════════════════╣");
+            System.out.println("╠════════════════════════════════════════════╣");
             System.out.println("║ 1. 📄 Générer une facture                  ║");
             System.out.println("║ 2. 💳 Payer une facture                    ║");
-            System.out.println("║ 3.  Voir toutes les factures             ║");
+            System.out.println("║ 3. 📋 Voir toutes les factures             ║");
             System.out.println("║ 4. 🔙 Retour au menu principal             ║");
             System.out.println("╚════════════════════════════════════════════╝");
-            System.out.print(" Votre choix : ");
+            System.out.print("👉 Votre choix : ");
 
             int choix = scanner.nextInt();
             scanner.nextLine();
 
             switch (choix) {
                 case 1:
-                    if (GestionReservations.getReservations().isEmpty()) {
-                        System.out.println("❌ Aucune réservation disponible");
-                        break;
-                    }
-                    Reservation r = GestionReservations.getReservations().get(0);
-                    Facture f = GestionFacturation.genererFacture(r);
-                    f.afficher();
+                    genererUneFacture();
                     break;
                 case 2:
-                    System.out.println("💳 Modes de paiement:");
-                    System.out.println("1. Carte Bancaire");
-                    System.out.println("2. Espèces");
-                    System.out.println("3. Virement");
-                    System.out.print("👉 Choix : ");
-                    int mode = scanner.nextInt();
-                    scanner.nextLine();
-
-                    Paiement paiement = null;
-                    switch (mode) {
-                        case 1:
-                            System.out.print("🔢 Numéro carte (16 chiffres) : ");
-                            String carte = scanner.nextLine();
-                            paiement = new PaiementCarte(carte);
-                            break;
-                        case 2:
-                            paiement = new PaiementEspece();
-                            break;
-                        case 3:
-                            System.out.print(" IBAN : ");
-                            String iban = scanner.nextLine();
-                            paiement = new PaiementVirement(iban);
-                            break;
-                    }
-
-                    if (paiement != null && !GestionReservations.getReservations().isEmpty()) {
-                        Facture facture = GestionFacturation.genererFacture(GestionReservations.getReservations().get(0));
-                        GestionFacturation.payerFacture(facture, paiement);
-                    }
+                    payerUneFacture();
                     break;
                 case 3:
-                    System.out.println("\n────────────────────────────────────────────┐");
-                    System.out.println("│            LISTE DES FACTURES              │");
-                    System.out.println("└────────────────────────────────────────────┘");
-                    for (Facture fact : GestionFacturation.getFactures()) {
-                        fact.afficher();
-                    }
+                    voirToutesFactures();
                     break;
                 case 4:
                     retour = true;
@@ -511,6 +495,217 @@ public class Main {
                 default:
                     System.out.println("❌ Choix invalide");
             }
+        }
+    }
+
+    // ✅ NOUVELLE MÉTHODE : Générer une facture pour une réservation spécifique
+    private static void genererUneFacture() {
+        List<Reservation> reservations = GestionReservations.getReservations();
+
+        if (reservations.isEmpty()) {
+            System.out.println("❌ Aucune réservation disponible");
+            return;
+        }
+
+        // ✅ Étape 1 : Afficher toutes les réservations NON facturées
+        System.out.println("\n┌────────────────────────────────────────────┐");
+        System.out.println("│         RÉSERVATIONS À FACTURER            │");
+        System.out.println("└────────────────────────────────────────────┘");
+
+        int index = 1;
+        for (Reservation r : reservations) {
+            if (!r.isEstAnnulee()) {
+                System.out.println("[" + index + "] Réservation N°" + r.getId() +
+                        " | Client: " + r.getClient().getPrenom() + " " + r.getClient().getNom() +
+                        " | Chambre: " + r.getChambre().getNumero() +
+                        " | Du: " + r.getDateDebut() + " au " + r.getDateFin());
+                index++;
+            }
+        }
+
+        if (index == 1) {
+            System.out.println("✅ Toutes les réservations ont déjà été facturées");
+            return;
+        }
+
+        // ✅ Étape 2 : Demander à l'admin de choisir
+        System.out.print("\n👉 Numéro de la réservation à facturer (1-" + (index-1) + ") : ");
+        int choixRes = scanner.nextInt();
+        scanner.nextLine();
+
+        if (choixRes < 1 || choixRes > reservations.size()) {
+            System.out.println("❌ Choix invalide");
+            return;
+        }
+
+        // ✅ Étape 3 : Trouver la réservation sélectionnée
+        int compteur = 0;
+        Reservation reservationChoisie = null;
+        for (Reservation r : reservations) {
+            if (!r.isEstAnnulee()) {
+                compteur++;
+                if (compteur == choixRes) {
+                    reservationChoisie = r;
+                    break;
+                }
+            }
+        }
+
+        if (reservationChoisie == null) {
+            System.out.println("❌ Réservation non trouvée");
+            return;
+        }
+
+        // ✅ Étape 4 : Vérifier si déjà facturée
+        boolean dejaFacturee = false;
+        for (Facture f : GestionFacturation.getFactures()) {
+            if (f.getReservation() == reservationChoisie) {
+                dejaFacturee = true;
+                break;
+            }
+        }
+
+        if (dejaFacturee) {
+            System.out.println("⚠️  Cette réservation a déjà une facture générée");
+            System.out.print("Voulez-vous générer une nouvelle facture ? (oui/non) : ");
+            String reponse = scanner.nextLine();
+            if (!reponse.equalsIgnoreCase("oui")) {
+                return;
+            }
+        }
+
+        // ✅ Étape 5 : Générer la facture
+        Facture facture = GestionFacturation.genererFacture(reservationChoisie);
+        System.out.println("\n✅ Facture N°" + facture.getNumero() + " générée avec succès !");
+        facture.afficher();
+    }
+
+    // ✅ NOUVELLE MÉTHODE : Payer une facture
+    private static void payerUneFacture() {
+        List<Facture> factures = GestionFacturation.getFactures();
+
+        if (factures.isEmpty()) {
+            System.out.println("❌ Aucune facture disponible");
+            return;
+        }
+
+        // ✅ Afficher les factures non payées
+        System.out.println("\n┌────────────────────────────────────────────┐");
+        System.out.println("│            FACTURES À PAYER                │");
+        System.out.println("└────────────────────────────────────────────┘");
+
+        int index = 1;
+        for (Facture f : factures) {
+            if (f.getPaiement() == null) {
+                System.out.println("[" + index + "] Facture N°" + f.getNumero() +
+                        " | Client: " + f.getReservation().getClient().getNom() +
+                        " | Montant: " + f.getTotalGeneral() + "€");
+                index++;
+            }
+        }
+
+        if (index == 1) {
+            System.out.println("✅ Toutes les factures ont déjà été payées");
+            return;
+        }
+
+        // ✅ Choisir la facture à payer
+        System.out.print("\n👉 Numéro de la facture à payer (1-" + (index-1) + ") : ");
+        int choixFacture = scanner.nextInt();
+        scanner.nextLine();
+
+        if (choixFacture < 1 || choixFacture > factures.size()) {
+            System.out.println("❌ Choix invalide");
+            return;
+        }
+
+        // ✅ Trouver la facture
+        int compteur = 0;
+        Facture factureChoisie = null;
+        for (Facture f : factures) {
+            if (f.getPaiement() == null) {
+                compteur++;
+                if (compteur == choixFacture) {
+                    factureChoisie = f;
+                    break;
+                }
+            }
+        }
+
+        if (factureChoisie == null) {
+            System.out.println("❌ Facture non trouvée");
+            return;
+        }
+
+        // ✅ Choisir le mode de paiement
+        System.out.println("\n💳 Modes de paiement:");
+        System.out.println("1. Carte Bancaire");
+        System.out.println("2. Espèces");
+        System.out.println("3. Virement");
+        System.out.print("👉 Choix : ");
+        int mode = scanner.nextInt();
+        scanner.nextLine();
+
+        Paiement paiement = null;
+        switch (mode) {
+            case 1:
+                System.out.print("🔢 Numéro carte (16 chiffres) : ");
+                String carte = scanner.nextLine();
+                paiement = new PaiementCarte(carte);
+                break;
+            case 2:
+                paiement = new PaiementEspece();
+                break;
+            case 3:
+                System.out.print("🏦 IBAN : ");
+                String iban = scanner.nextLine();
+                paiement = new PaiementVirement(iban);
+                break;
+            default:
+                System.out.println("❌ Mode de paiement invalide");
+                return;
+        }
+
+        // ✅ Payer la facture
+        GestionFacturation.payerFacture(factureChoisie, paiement);
+        System.out.println("✅ Paiement enregistré avec succès !");
+    }
+
+    // ✅ NOUVELLE MÉTHODE : Voir toutes les factures
+    private static void voirToutesFactures() {
+        List<Facture> factures = GestionFacturation.getFactures();
+
+        if (factures.isEmpty()) {
+            System.out.println("❌ Aucune facture générée");
+            return;
+        }
+
+        System.out.println("\n┌────────────────────────────────────────────┐");
+        System.out.println("│            TOUTES LES FACTURES             │");
+        System.out.println("└────────────────────────────────────────────┘");
+
+        for (Facture f : factures) {
+            System.out.println("Facture N°" + f.getNumero() +
+                    " | Client: " + f.getReservation().getClient().getNom() +
+                    " | Montant: " + f.getTotalGeneral() + "€" +
+                    " | Statut: " + (f.getPaiement() != null ? "✅ Payée" : "⏳ En attente"));
+        }
+
+        System.out.print("\n👉 Voulez-vous afficher le détail d'une facture ? (oui/non) : ");
+        String reponse = scanner.nextLine();
+
+        if (reponse.equalsIgnoreCase("oui")) {
+            System.out.print("🔢 Numéro de facture : ");
+            int numFacture = scanner.nextInt();
+            scanner.nextLine();
+
+            for (Facture f : factures) {
+                if (f.getNumero() == numFacture) {
+                    f.afficher();
+                    return;
+                }
+            }
+            System.out.println("❌ Facture non trouvée");
         }
     }
 
@@ -544,21 +739,60 @@ public class Main {
 
     // Dans la méthode sauvegarderDonnees() :
     private static void sauvegarderDonnees() {
+        System.out.println("\n💾 Sauvegarde en cours...");
+
         DataPersistence.sauvegarder(GestionClients.getlisteClients(), "clients.ser");
         DataPersistence.sauvegarder(GestionReservations.getReservations(), "reservations.ser");
         DataPersistence.sauvegarder(GestionFacturation.getFactures(), "factures.ser");
-        System.out.println("✅ Données sauvegardées avec succès !");
+        DataPersistence.sauvegarder(GestionHotels.getHotels(), "hotels.ser");
+        DataPersistence.sauvegarder(GestionAvis.getAvis(), "avis.ser");
+
+        System.out.println("✅ Toutes les données ont été sauvegardées avec succès !");
     }
 
-    // Dans la méthode chargerDonnees() :
     private static void chargerDonnees() {
-        Object clientsData = DataPersistence.charger("clients.ser");
-        Object reservationsData = DataPersistence.charger("reservations.ser");
-        Object facturesData = DataPersistence.charger("factures.ser");
-        if (clientsData != null) {
-            System.out.println("✅ Données chargées depuis la sauvegarde précédente");
-        } else {
-            System.out.println("ℹ️  Aucune sauvegarde précédente trouvée");
+        System.out.println("\n📂 Chargement des données sauvegardées...");
+
+        // ✅ Charger et ASSIGNER les clients
+        @SuppressWarnings("unchecked")
+        List<Client> clientsCharges = (List<Client>) DataPersistence.charger("clients.ser");
+        if (clientsCharges != null) {
+            GestionClients.setlisteClients(clientsCharges);
+            System.out.println("✅ " + clientsCharges.size() + " client(s) chargé(s)");
         }
+
+        // ✅ Charger et ASSIGNER les réservations
+        @SuppressWarnings("unchecked")
+        List<Reservation> reservationsChargees = (List<Reservation>) DataPersistence.charger("reservations.ser");
+        if (reservationsChargees != null) {
+            GestionReservations.setReservations(reservationsChargees);
+            System.out.println("✅ " + reservationsChargees.size() + " réservation(s) chargée(s)");
+        }
+
+        // ✅ Charger et ASSIGNER les factures
+        @SuppressWarnings("unchecked")
+        List<Facture> facturesChargees = (List<Facture>) DataPersistence.charger("factures.ser");
+        if (facturesChargees != null) {
+            GestionFacturation.setFactures(facturesChargees);
+            System.out.println("✅ " + facturesChargees.size() + " facture(s) chargée(s)");
+        }
+
+        // ✅ Charger et ASSIGNER les hôtels (si modifié)
+        @SuppressWarnings("unchecked")
+        List<Hotel> hotelsCharges = (List<Hotel>) DataPersistence.charger("hotels.ser");
+        if (hotelsCharges != null) {
+            GestionHotels.setHotels(hotelsCharges);
+            System.out.println("✅ " + hotelsCharges.size() + " hôtel(s) chargé(s)");
+        }
+
+        // ✅ Charger et ASSIGNER les avis
+        @SuppressWarnings("unchecked")
+        List<Avis> avisCharges = (List<Avis>) DataPersistence.charger("avis.ser");
+        if (avisCharges != null) {
+            GestionAvis.setAvis(avisCharges);
+            System.out.println("✅ " + avisCharges.size() + " avis chargé(s)");
+        }
+
+        System.out.println("ℹ️  Prêt à démarrer !");
     }
 }

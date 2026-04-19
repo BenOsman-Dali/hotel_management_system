@@ -1,7 +1,7 @@
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.List;
-
-public class Facture {
+public class Facture implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int numero;
     private Reservation reservation;
     private LocalDate dateEmission;
@@ -20,21 +20,34 @@ public class Facture {
     }
 
     private void calculerMontants() {
-        // Calcul avec tarification saisonnière
-        totalNuits = reservation.getChambre().getPrixTotalSejour(
-                reservation.getDateDebut(),
-                reservation.getDateFin()
-        );
+        long nuits = reservation.getNombreNuits();
+        double prixNuit = reservation.getChambre().getPrixParNuit();
+
+        System.out.println("🔍 DEBUG CALCUL:");
+        System.out.println("  - Nuits: " + nuits);
+        System.out.println("  - Prix/nuit: " + prixNuit + "€");
+        System.out.println("  - Total nuits: " + (nuits * prixNuit) + "€");
+
+        totalNuits = nuits * prixNuit;
 
         totalServices = 0;
         for (Service s : reservation.getServices()) {
             totalServices += s.getPrixTotal();
         }
+        System.out.println("  - Total services: " + totalServices + "€");
 
         double sousTotal = totalNuits + totalServices;
+        System.out.println("  - Sous-total: " + sousTotal + "€");
+
         reduction = sousTotal * reservation.getClient().getTauxReduction();
+        System.out.println("  - Réduction: " + reduction + "€");
+
         taxes = (sousTotal - reduction) * 0.10;
+        System.out.println("  - Taxes (10%): " + taxes + "€");
+
         totalGeneral = sousTotal - reduction + taxes;
+        System.out.println("  - TOTAL: " + totalGeneral + "€");
+        System.out.println("🔍 FIN DEBUG\n");
     }
 
     public void setPaiement(Paiement paiement) {

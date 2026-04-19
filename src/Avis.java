@@ -2,6 +2,7 @@ import java.time.LocalDate;
 import java.io.Serializable;
 
 public class Avis implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Client client;
     private Hotel hotel;
     private int note; // 1-5

@@ -1,4 +1,6 @@
-public abstract class Chambre {
+import java.io.Serializable;
+public abstract class Chambre implements Serializable {
+    private static final long serialVersionUID = 1L;
     protected int numero;
     protected double prixParNuit;
     protected int capacite;
