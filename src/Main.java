@@ -245,19 +245,37 @@ public class Main {
             int choix = scanner.nextInt();
             scanner.nextLine();
 
+            // ✅ ÉTAPE PRÉALABLE : Sélectionner l'hôtel (pour toutes les options sauf retour)
+            Hotel hotelSelectionne = null;
+            if (choix >= 1 && choix <= 3) {
+                System.out.println("\n┌────────────────────────────────────────────┐");
+                System.out.println("│         SÉLECTIONNER UN HÔTEL               │");
+                System.out.println("└────────────────────────────────────────────┘");
+                GestionHotels.afficherHotels();
+                System.out.print("👉 Nom de l'hôtel : ");
+                String nomHotel = scanner.nextLine();
+                hotelSelectionne = GestionHotels.trouverHotel(nomHotel);
+
+                if (hotelSelectionne == null) {
+                    System.out.println("❌ Hôtel non trouvé");
+                    continue;
+                }
+                System.out.println("✅ Hôtel sélectionné : " + hotelSelectionne.getNom());
+            }
+
             switch (choix) {
                 case 1:
+                    // ✅ Voir les chambres de l'hôtel sélectionné
                     System.out.println("\n┌────────────────────────────────────────────┐");
-                    System.out.println("│            ÉTAT DES CHAMBRES               │");
+                    System.out.println("│         CHAMBRES - " + hotelSelectionne.getNom().toUpperCase());
                     System.out.println("└────────────────────────────────────────────┘");
 
-                    // ✅ Codes couleurs pour les chambres
                     String RESET = "\u001B[0m";
                     String GREEN = "\u001B[32m";
                     String RED = "\u001B[31m";
                     String YELLOW = "\u001B[33m";
 
-                    for (Chambre ch : GestionChambres.getChambres()) {
+                    for (Chambre ch : hotelSelectionne.getChambres()) {
                         String couleur;
                         String etatText;
 
@@ -279,28 +297,63 @@ public class Main {
                     break;
 
                 case 2:
-                    System.out.print("🔢 Numéro de chambre : ");
+                    // ✅ Mettre en maintenance (hôtel sélectionné)
+                    System.out.println("\n┌────────────────────────────────────────────┐");
+                    System.out.println("│         CHAMBRES DISPONIBLES                │");
+                    System.out.println("└────────────────────────────────────────────┘");
+                    for (Chambre ch : hotelSelectionne.getChambres()) {
+                        if (!ch.isEnMaintenance()) {
+                            System.out.println("• Chambre " + ch.getNumero() + " (" + ch.getType() + ")");
+                        }
+                    }
+
+                    System.out.print("🔢 Numéro de chambre à mettre en maintenance : ");
                     int numMaint = scanner.nextInt();
                     scanner.nextLine();
-                    Chambre chMaint = GestionChambres.trouverChambre(numMaint);
+
+                    Chambre chMaint = hotelSelectionne.trouverChambre(numMaint);
                     if (chMaint != null) {
-                        chMaint.setEtat(EtatChambre.MAINTENANCE);
-                        System.out.println("✅ Chambre " + numMaint + " mise en maintenance");
+                        if (chMaint.isEnMaintenance()) {
+                            System.out.println("⚠️  Cette chambre est déjà en maintenance");
+                        } else {
+                            chMaint.setEtat(EtatChambre.MAINTENANCE);
+                            System.out.println("✅ Chambre " + numMaint + " mise en maintenance");
+                        }
                     } else {
-                        System.out.println("❌ Chambre non trouvée");
+                        System.out.println("❌ Chambre non trouvée dans cet hôtel");
                     }
                     break;
 
                 case 3:
-                    System.out.print("🔢 Numéro de chambre : ");
+                    // ✅ Libérer une chambre (hôtel sélectionné)
+                    System.out.println("\n┌────────────────────────────────────────────┐");
+                    System.out.println("│         CHAMBRES EN MAINTENANCE             │");
+                    System.out.println("└────────────────────────────────────────────┘");
+                    boolean foundMaintenance = false;
+                    for (Chambre ch : hotelSelectionne.getChambres()) {
+                        if (ch.isEnMaintenance()) {
+                            System.out.println("• Chambre " + ch.getNumero() + " (" + ch.getType() + ")");
+                            foundMaintenance = true;
+                        }
+                    }
+                    if (!foundMaintenance) {
+                        System.out.println("Aucune chambre en maintenance dans cet hôtel");
+                    }
+
+                    System.out.print("🔢 Numéro de chambre à libérer : ");
                     int numLib = scanner.nextInt();
                     scanner.nextLine();
-                    Chambre chLib = GestionChambres.trouverChambre(numLib);
+
+                    Chambre chLib = hotelSelectionne.trouverChambre(numLib);
                     if (chLib != null) {
-                        chLib.setEtat(EtatChambre.LIBRE);
-                        System.out.println("✅ Chambre " + numLib + " libérée");
+                        if (chLib.isEnMaintenance()) {
+                            chLib.setEtat(EtatChambre.LIBRE);
+                            System.out.println("✅ Chambre " + numLib + " libérée");
+                        } else {
+                            System.out.println("⚠️  Cette chambre n'est pas en maintenance");
+                        }
                     } else {
-                        System.out.println("❌ Chambre non trouvée");
+                        System.out.println("❌ Chambre non trouvée dans cet hôtel");
                     }
                     break;
 
@@ -414,29 +467,105 @@ public class Main {
                     break;
 
                 case 3:
-                    System.out.println("📋 Services disponibles:");
-                    System.out.println("1. Petit-déjeuner (15€)");
-                    System.out.println("2. Blanchisserie (20€)");
-                    System.out.println("3. Room Service (25€)");
-                    System.out.println("4. Transport (50€)");
+                    // ✅ ÉTAPE 1 : Afficher les réservations disponibles
+                    List<Reservation> reservations = GestionReservations.getReservations();
+
+                    if (reservations.isEmpty()) {
+                        System.out.println("❌ Aucune réservation disponible");
+                        break;
+                    }
+
+                    System.out.println("\n┌────────────────────────────────────────────┐");
+                    System.out.println("│         RÉSERVATIONS DISPONIBLES            │");
+                    System.out.println("└────────────────────────────────────────────┘");
+
+                    int index = 1;
+                    for (Reservation r : reservations) {
+                        if (!r.isEstAnnulee()) {
+                            System.out.println("[" + index + "] Réservation N°" + r.getId() +
+                                    " | Client: " + r.getClient().getPrenom() + " " + r.getClient().getNom() +
+                                    " | Chambre: " + r.getChambre().getNumero() +
+                                    " | Du: " + r.getDateDebut() + " au " + r.getDateFin() +
+                                    " | Services actuels: " + r.getServices().size());
+                            index++;
+                        }
+                    }
+
+                    if (index == 1) {
+                        System.out.println("❌ Aucune réservation active trouvée");
+                        break;
+                    }
+
+                    // ✅ ÉTAPE 2 : Sélectionner la réservation
+                    System.out.print("\n👉 Numéro de la réservation (1-" + (index-1) + ") : ");
+                    int choixRes = scanner.nextInt();
+                    scanner.nextLine();
+
+                    if (choixRes < 1 || choixRes > reservations.size()) {
+                        System.out.println("❌ Choix invalide");
+                        break;
+                    }
+
+                    // ✅ ÉTAPE 3 : Trouver la réservation sélectionnée
+                    int compteur = 0;
+                    Reservation reservationChoisie = null;
+                    for (Reservation r : reservations) {
+                        if (!r.isEstAnnulee()) {
+                            compteur++;
+                            if (compteur == choixRes) {
+                                reservationChoisie = r;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (reservationChoisie == null) {
+                        System.out.println("❌ Réservation non trouvée");
+                        break;
+                    }
+
+                    // ✅ ÉTAPE 4 : Afficher les services disponibles
+                    System.out.println("\n┌────────────────────────────────────────────┐");
+                    System.out.println("│         SERVICES DISPONIBLES                │");
+                    System.out.println("└────────────────────────────────────────────┘");
+                    System.out.println("1. 🥐 Petit-déjeuner (15€/pers/jour)");
+                    System.out.println("2. 🧺 Blanchisserie (20€/article)");
+                    System.out.println("3. 🍽️  Room Service (25€/commande)");
+                    System.out.println("4. 🚗 Transport (50€/trajet)");
                     System.out.print("👉 Choix du service : ");
                     int serviceChoix = scanner.nextInt();
                     System.out.print("🔢 Quantité : ");
                     int quantite = scanner.nextInt();
                     scanner.nextLine();
 
+                    // ✅ ÉTAPE 5 : Créer et ajouter le service
                     TypeService typeService = null;
                     switch (serviceChoix) {
                         case 1: typeService = TypeService.PETIT_DEJEUNER; break;
                         case 2: typeService = TypeService.BLANCHISSERIE; break;
                         case 3: typeService = TypeService.ROOM_SERVICE; break;
                         case 4: typeService = TypeService.TRANSPORT; break;
+                        default:
+                            System.out.println("❌ Service invalide");
+                            break;
                     }
 
-                    if (typeService != null && !GestionReservations.getReservations().isEmpty()) {
-                        Reservation derniere = GestionReservations.getReservations().get(GestionReservations.getReservations().size() - 1);
-                        derniere.ajouterService(new Service(typeService, quantite));
-                        System.out.println("✅ Service ajouté !");
+                    if (typeService != null) {
+                        reservationChoisie.ajouterService(new Service(typeService, quantite));
+                        System.out.println("✅ Service ajouté avec succès à la réservation N°" + reservationChoisie.getId());
+
+                        // ✅ Afficher le récapitulatif des services
+                        System.out.println("\n┌────────────────────────────────────────────┐");
+                        System.out.println("│         SERVICES DE LA RÉSERVATION          │");
+                        System.out.println("└────────────────────────────────────────────┘");
+                        double totalServices = 0;
+                        for (Service s : reservationChoisie.getServices()) {
+                            System.out.println("• " + s.getType().getLibelle() + " × " + s.getQuantite() +
+                                    " = " + s.getPrixTotal() + "€");
+                            totalServices += s.getPrixTotal();
+                        }
+                        System.out.println("─────────────────────────────────────────────");
+                        System.out.println("💰 Total Services : " + totalServices + "€");
                     }
                     break;
 
