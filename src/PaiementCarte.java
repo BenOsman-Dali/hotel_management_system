@@ -1,5 +1,5 @@
 public class PaiementCarte implements Paiement {
-    private String numeroCarte;
+    private final String numeroCarte;
 
     public PaiementCarte(String numeroCarte) {
         this.numeroCarte = numeroCarte;

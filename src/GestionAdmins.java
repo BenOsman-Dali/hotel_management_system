@@ -19,7 +19,4 @@ public class GestionAdmins implements Serializable {
         return null;
     }
 
-    public static List<Admin> getAdmins() {
-        return admins;
-    }
 }

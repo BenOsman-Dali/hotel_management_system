@@ -8,20 +8,19 @@ public class Reservation implements Serializable {
     private static int compteurGlobal = 1;
 
     private int id;
-    private Client client;
-    private Chambre chambre;
+    private final Client client;
+    private final Chambre chambre;
     private Hotel hotel;
-    private LocalDate dateDebut;
-    private LocalDate dateFin;
-    private int nombrePersonnes;
+    private final LocalDate dateDebut;
+    private final LocalDate dateFin;
+    private final int nombrePersonnes;
     private boolean estAnnulee;
-    private List<Service> services;
+    private final List<Service> services;
 
     public Reservation(Client client, Chambre chambre, Hotel hotel, LocalDate dateDebut, LocalDate dateFin, int nombrePersonnes) {
         this.id = compteurGlobal++;
         this.client = client;
         this.chambre = chambre;
-        this.hotel = this.hotel;
         this.dateDebut = dateDebut;
         this.dateFin = dateFin;
         this.nombrePersonnes = nombrePersonnes;
@@ -47,10 +46,7 @@ public class Reservation implements Serializable {
         this.services.add(service);
     }
 
-    public void modifierDates(LocalDate debut, LocalDate fin) {
-        this.dateDebut = debut;
-        this.dateFin = fin;
-    }
+
     public Hotel getHotel() { return hotel; }
 
     public void annuler() {

@@ -1,10 +1,10 @@
 import java.io.Serializable;
 
 public class Admin implements Serializable {
-    private String username;
-    private String password;
-    private String nom;
-    private String prenom;
+    private final String username;
+    private final String password;
+    private final String nom;
+    private final String prenom;
 
     public Admin(String username, String password, String nom, String prenom) {
         this.username = username;
@@ -13,8 +13,6 @@ public class Admin implements Serializable {
         this.prenom = prenom;
     }
 
-    public String getUsername() { return username; }
-    public String getPassword() { return password; }
     public String getNom() { return nom; }
     public String getPrenom() { return prenom; }
 

@@ -19,7 +19,6 @@ public class Hotel implements Serializable {
     }
 
     public String getNom() { return nom; }
-    public String getAdresse() { return adresse; }
     public String getVille() { return ville; }
     public int getEtoiles() { return etoiles; }
     public List<Chambre> getChambres() { return chambres; }

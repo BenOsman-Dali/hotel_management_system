@@ -19,11 +19,7 @@ public class Avis implements Serializable {
 
     public int getNote() { return note; }
     public String getCommentaire() { return commentaire; }
-    public LocalDate getDate() { return date; }
     public Client getClient() { return client; }
     public Hotel getHotel() { return hotel; }
 
-    public double getNoteEnEtoiles() {
-        return note;
-    }
 }

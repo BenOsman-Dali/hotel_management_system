@@ -1,4 +1,5 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -375,9 +376,8 @@ public class Main {
             System.out.println("╠════════════════════════════════════════════╣");
             System.out.println("║ 1. ➕ Créer une réservation                ║");
             System.out.println("║ 2. 📋 Voir toutes les réservations         ║");
-            System.out.println("║ 3. ➕ Ajouter un service                   ║");
-            System.out.println("║ 4. ❌ Annuler une réservation              ║");
-            System.out.println("║ 5. 🔙 Retour au menu principal             ║");
+            System.out.println("║ 3. ❌ Annuler une réservation              ║");
+            System.out.println("║ 4. 🔙 Retour au menu principal             ║");
             System.out.println("╚════════════════════════════════════════════╝");
             System.out.print("👉 Votre choix : ");
 
@@ -411,7 +411,7 @@ public class Main {
                             break;
                         }
 
-                        // ✅ ÉTAPE 3 : Afficher les chambres de l'hôtel sélectionné
+                        // ✅ ÉTAPE 3 : Afficher les chambres disponibles
                         System.out.println("\n┌────────────────────────────────────────────┐");
                         System.out.println("│         CHAMBRES DISPONIBLES                │");
                         System.out.println("└────────────────────────────────────────────┘");
@@ -423,7 +423,6 @@ public class Main {
                                     " | " + ch.getPrixParNuit() + "€/nuit | Cap: " + ch.getCapacite());
                         }
 
-                        // ✅ ÉTAPE 4 : Sélectionner la chambre
                         System.out.print("🔢 Numéro chambre : ");
                         int numCh = scanner.nextInt();
                         scanner.nextLine();
@@ -433,7 +432,7 @@ public class Main {
                             break;
                         }
 
-                        // ✅ ÉTAPE 5 : Dates et personnes
+
                         System.out.print("📅 Date début (YYYY-MM-DD) : ");
                         LocalDate debut = LocalDate.parse(scanner.nextLine());
                         System.out.print("📅 Date fin (YYYY-MM-DD) : ");
@@ -442,9 +441,75 @@ public class Main {
                         int personnes = scanner.nextInt();
                         scanner.nextLine();
 
-                        // ✅ ÉTAPE 6 : Créer la réservation
                         Reservation r = GestionReservations.creerReservation(client, chambre, hotel, debut, fin, personnes);
-                        System.out.println("✅ Réservation créée avec succès ! ID: " + r.getId());
+                        System.out.println("\n✅ Réservation créée avec succès ! ID: " + r.getId());
+
+
+                        System.out.println("\n┌────────────────────────────────────────────┐");
+                        System.out.println("│         AJOUTER DES SERVICES ?              │");
+                        System.out.println("└────────────────────────────────────────────┘");
+                        System.out.print("👉 Voulez-vous ajouter des services à cette réservation ? (oui/non) : ");
+                        String reponse = scanner.nextLine();
+
+                        if (reponse.equalsIgnoreCase("oui") || reponse.equalsIgnoreCase("o")) {
+                            boolean continuerServices = true;
+                            while (continuerServices) {
+                                System.out.println("\n┌────────────────────────────────────────────┐");
+                                System.out.println("│         SERVICES DISPONIBLES                │");
+                                System.out.println("└────────────────────────────────────────────┘");
+                                System.out.println("1. 🥐 Petit-déjeuner (15€/pers/jour)");
+                                System.out.println("2. 🧺 Blanchisserie (20€/article)");
+                                System.out.println("3. 🍽️  Room Service (25€/commande)");
+                                System.out.println("4. 🚗 Transport (50€/trajet)");
+                                System.out.print("👉 Choix du service : ");
+                                int serviceChoix = scanner.nextInt();
+                                System.out.print("🔢 Quantité : ");
+                                int quantite = scanner.nextInt();
+                                scanner.nextLine();
+
+                                TypeService typeService = null;
+                                switch (serviceChoix) {
+                                    case 1: typeService = TypeService.PETIT_DEJEUNER; break;
+                                    case 2: typeService = TypeService.BLANCHISSERIE; break;
+                                    case 3: typeService = TypeService.ROOM_SERVICE; break;
+                                    case 4: typeService = TypeService.TRANSPORT; break;
+                                    default:
+                                        System.out.println("❌ Service invalide");
+                                        continue;
+                                }
+
+                                if (typeService != null) {
+                                    r.ajouterService(new Service(typeService, quantite));
+                                    System.out.println("✅ Service ajouté : " + typeService.getLibelle() + " × " + quantite);
+                                }
+
+
+                                System.out.print("\n👉 Voulez-vous ajouter un autre service ? (oui/non) : ");
+                                String reponseContinue = scanner.nextLine();
+                                if (!reponseContinue.equalsIgnoreCase("oui") && !reponseContinue.equalsIgnoreCase("o")) {
+                                    continuerServices = false;
+                                }
+                            }
+
+
+                            System.out.println("\n┌────────────────────────────────────────────┐");
+                            System.out.println("│         RÉCAPITULATIF DES SERVICES          │");
+                            System.out.println("└────────────────────────────────────────────┘");
+                            double totalServices = 0;
+                            if (r.getServices().isEmpty()) {
+                                System.out.println("Aucun service ajouté");
+                            } else {
+                                for (Service s : r.getServices()) {
+                                    System.out.println("• " + s.getType().getLibelle() + " × " + s.getQuantite() +
+                                            " = " + s.getPrixTotal() + "€");
+                                    totalServices += s.getPrixTotal();
+                                }
+                                System.out.println("─────────────────────────────────────────────");
+                                System.out.println("💰 Total Services : " + totalServices + "€");
+                            }
+                        } else {
+                            System.out.println("ℹ️  Aucun service ajouté à cette réservation");
+                        }
 
                     } catch (Exception e) {
                         System.out.println("❌ Erreur : " + e.getMessage());
@@ -466,110 +531,8 @@ public class Main {
                     }
                     break;
 
+
                 case 3:
-                    // ✅ ÉTAPE 1 : Afficher les réservations disponibles
-                    List<Reservation> reservations = GestionReservations.getReservations();
-
-                    if (reservations.isEmpty()) {
-                        System.out.println("❌ Aucune réservation disponible");
-                        break;
-                    }
-
-                    System.out.println("\n┌────────────────────────────────────────────┐");
-                    System.out.println("│         RÉSERVATIONS DISPONIBLES            │");
-                    System.out.println("└────────────────────────────────────────────┘");
-
-                    int index = 1;
-                    for (Reservation r : reservations) {
-                        if (!r.isEstAnnulee()) {
-                            System.out.println("[" + index + "] Réservation N°" + r.getId() +
-                                    " | Client: " + r.getClient().getPrenom() + " " + r.getClient().getNom() +
-                                    " | Chambre: " + r.getChambre().getNumero() +
-                                    " | Du: " + r.getDateDebut() + " au " + r.getDateFin() +
-                                    " | Services actuels: " + r.getServices().size());
-                            index++;
-                        }
-                    }
-
-                    if (index == 1) {
-                        System.out.println("❌ Aucune réservation active trouvée");
-                        break;
-                    }
-
-                    // ✅ ÉTAPE 2 : Sélectionner la réservation
-                    System.out.print("\n👉 Numéro de la réservation (1-" + (index-1) + ") : ");
-                    int choixRes = scanner.nextInt();
-                    scanner.nextLine();
-
-                    if (choixRes < 1 || choixRes > reservations.size()) {
-                        System.out.println("❌ Choix invalide");
-                        break;
-                    }
-
-                    // ✅ ÉTAPE 3 : Trouver la réservation sélectionnée
-                    int compteur = 0;
-                    Reservation reservationChoisie = null;
-                    for (Reservation r : reservations) {
-                        if (!r.isEstAnnulee()) {
-                            compteur++;
-                            if (compteur == choixRes) {
-                                reservationChoisie = r;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (reservationChoisie == null) {
-                        System.out.println("❌ Réservation non trouvée");
-                        break;
-                    }
-
-                    // ✅ ÉTAPE 4 : Afficher les services disponibles
-                    System.out.println("\n┌────────────────────────────────────────────┐");
-                    System.out.println("│         SERVICES DISPONIBLES                │");
-                    System.out.println("└────────────────────────────────────────────┘");
-                    System.out.println("1. 🥐 Petit-déjeuner (15€/pers/jour)");
-                    System.out.println("2. 🧺 Blanchisserie (20€/article)");
-                    System.out.println("3. 🍽️  Room Service (25€/commande)");
-                    System.out.println("4. 🚗 Transport (50€/trajet)");
-                    System.out.print("👉 Choix du service : ");
-                    int serviceChoix = scanner.nextInt();
-                    System.out.print("🔢 Quantité : ");
-                    int quantite = scanner.nextInt();
-                    scanner.nextLine();
-
-                    // ✅ ÉTAPE 5 : Créer et ajouter le service
-                    TypeService typeService = null;
-                    switch (serviceChoix) {
-                        case 1: typeService = TypeService.PETIT_DEJEUNER; break;
-                        case 2: typeService = TypeService.BLANCHISSERIE; break;
-                        case 3: typeService = TypeService.ROOM_SERVICE; break;
-                        case 4: typeService = TypeService.TRANSPORT; break;
-                        default:
-                            System.out.println("❌ Service invalide");
-                            break;
-                    }
-
-                    if (typeService != null) {
-                        reservationChoisie.ajouterService(new Service(typeService, quantite));
-                        System.out.println("✅ Service ajouté avec succès à la réservation N°" + reservationChoisie.getId());
-
-                        // ✅ Afficher le récapitulatif des services
-                        System.out.println("\n┌────────────────────────────────────────────┐");
-                        System.out.println("│         SERVICES DE LA RÉSERVATION          │");
-                        System.out.println("└────────────────────────────────────────────┘");
-                        double totalServices = 0;
-                        for (Service s : reservationChoisie.getServices()) {
-                            System.out.println("• " + s.getType().getLibelle() + " × " + s.getQuantite() +
-                                    " = " + s.getPrixTotal() + "€");
-                            totalServices += s.getPrixTotal();
-                        }
-                        System.out.println("─────────────────────────────────────────────");
-                        System.out.println("💰 Total Services : " + totalServices + "€");
-                    }
-                    break;
-
-                case 4:
                     System.out.print("🔢 ID de la réservation à annuler : ");
                     int idAnnuler = scanner.nextInt();
                     scanner.nextLine();
@@ -582,7 +545,7 @@ public class Main {
                     }
                     break;
 
-                case 5:
+                case 4:
                     retour = true;
                     break;
 
@@ -627,7 +590,7 @@ public class Main {
         }
     }
 
-    // ✅ NOUVELLE MÉTHODE : Générer une facture pour une réservation spécifique
+
     private static void genererUneFacture() {
         List<Reservation> reservations = GestionReservations.getReservations();
 
@@ -636,7 +599,6 @@ public class Main {
             return;
         }
 
-        // ✅ Étape 1 : Afficher toutes les réservations NON facturées
         System.out.println("\n┌────────────────────────────────────────────┐");
         System.out.println("│         RÉSERVATIONS À FACTURER            │");
         System.out.println("└────────────────────────────────────────────┘");
@@ -657,7 +619,6 @@ public class Main {
             return;
         }
 
-        // ✅ Étape 2 : Demander à l'admin de choisir
         System.out.print("\n👉 Numéro de la réservation à facturer (1-" + (index-1) + ") : ");
         int choixRes = scanner.nextInt();
         scanner.nextLine();
@@ -667,7 +628,6 @@ public class Main {
             return;
         }
 
-        // ✅ Étape 3 : Trouver la réservation sélectionnée
         int compteur = 0;
         Reservation reservationChoisie = null;
         for (Reservation r : reservations) {
@@ -685,7 +645,7 @@ public class Main {
             return;
         }
 
-        // ✅ Étape 4 : Vérifier si déjà facturée
+
         boolean dejaFacturee = false;
         for (Facture f : GestionFacturation.getFactures()) {
             if (f.getReservation() == reservationChoisie) {
@@ -703,13 +663,12 @@ public class Main {
             }
         }
 
-        // ✅ Étape 5 : Générer la facture
+
         Facture facture = GestionFacturation.genererFacture(reservationChoisie);
         System.out.println("\n✅ Facture N°" + facture.getNumero() + " générée avec succès !");
         facture.afficher();
     }
 
-    // ✅ NOUVELLE MÉTHODE : Payer une facture
     private static void payerUneFacture() {
         List<Facture> factures = GestionFacturation.getFactures();
 
@@ -718,7 +677,7 @@ public class Main {
             return;
         }
 
-        // ✅ Afficher les factures non payées
+
         System.out.println("\n┌────────────────────────────────────────────┐");
         System.out.println("│            FACTURES À PAYER                │");
         System.out.println("└────────────────────────────────────────────┘");
@@ -738,7 +697,7 @@ public class Main {
             return;
         }
 
-        // ✅ Choisir la facture à payer
+
         System.out.print("\n👉 Numéro de la facture à payer (1-" + (index-1) + ") : ");
         int choixFacture = scanner.nextInt();
         scanner.nextLine();
@@ -748,7 +707,7 @@ public class Main {
             return;
         }
 
-        // ✅ Trouver la facture
+
         int compteur = 0;
         Facture factureChoisie = null;
         for (Facture f : factures) {
@@ -766,7 +725,7 @@ public class Main {
             return;
         }
 
-        // ✅ Choisir le mode de paiement
+
         System.out.println("\n💳 Modes de paiement:");
         System.out.println("1. Carte Bancaire");
         System.out.println("2. Espèces");
@@ -778,7 +737,7 @@ public class Main {
         Paiement paiement = null;
         switch (mode) {
             case 1:
-                System.out.print("🔢 Numéro carte (16 chiffres) : ");
+                System.out.print("🔢 Numéro carte (8 chiffres) : ");
                 String carte = scanner.nextLine();
                 paiement = new PaiementCarte(carte);
                 break;
@@ -795,12 +754,12 @@ public class Main {
                 return;
         }
 
-        // ✅ Payer la facture
+
         GestionFacturation.payerFacture(factureChoisie, paiement);
         System.out.println("✅ Paiement enregistré avec succès !");
     }
 
-    // ✅ NOUVELLE MÉTHODE : Voir toutes les factures
+
     private static void voirToutesFactures() {
         List<Facture> factures = GestionFacturation.getFactures();
 
@@ -839,31 +798,257 @@ public class Main {
     }
 
     private static void afficherStatistiques() {
-        System.out.println("\n╔════════════════════════════════════════════╗");
-        System.out.println("║            STATISTIQUES GLOBALES           ║");
-        System.out.println("╠════════════════════════════════════════════╣");
+        try {
+            System.out.println("\n╔════════════════════════════════════════════╗");
+            System.out.println("║            STATISTIQUES GLOBALES           ║");
+            System.out.println("╚════════════════════════════════════════════╝");
 
-        double taux = Statistiques.getTauxOccupation(GestionReservations.getReservations(),
-                GestionChambres.getChambres().size());
-        System.out.println("📊 Taux d'occupation : " + String.format("%.2f", taux) + "%");
 
-        double revenu = Statistiques.getRevenuTotal(GestionFacturation.getFactures());
-        System.out.println(" Revenu total : " + String.format("%.2f", revenu) + "€");
+            System.out.println("\n┌────────────────────────────────────────────┐");
+            System.out.println("│         SÉLECTIONNER UN HÔTEL               │");
+            System.out.println("└────────────────────────────────────────────┘");
+            GestionHotels.afficherHotels();
+            System.out.print("👉 Nom de l'hôtel : ");
+            String nomHotel = scanner.nextLine();
+            Hotel hotel = GestionHotels.trouverHotel(nomHotel);
 
-        Client plusFidele = Statistiques.getClientPlusFidele(GestionClients.getlisteClients());
-        if (plusFidele != null) {
-            System.out.println("🏆 Client le plus fidèle : " + plusFidele.getPrenom() + " " + plusFidele.getNom() +
-                    " (" + plusFidele.getNombreSejours() + " séjours)");
+            if (hotel == null) {
+                System.out.println("❌ Hôtel non trouvé");
+                return;
+            }
+            System.out.println("✅ Hôtel sélectionné : " + hotel.getNom());
+
+
+            List<Reservation> reservationsHotel = new ArrayList<>();
+            for (Reservation r : GestionReservations.getReservations()) {
+                if (r.getHotel() != null && r.getHotel().getNom().equals(hotel.getNom())) {
+                    reservationsHotel.add(r);
+                }
+            }
+
+
+            List<Facture> facturesHotel = new ArrayList<>();
+            for (Facture f : GestionFacturation.getFactures()) {
+                if (f.getReservation().getHotel() != null &&
+                        f.getReservation().getHotel().getNom().equals(hotel.getNom())) {
+                    facturesHotel.add(f);
+                }
+            }
+
+
+            boolean retour = false;
+            while (!retour) {
+                System.out.println("\n╔════════════════════════════════════════════╗");
+                System.out.println("║         STATISTIQUES - " + hotel.getNom().toUpperCase());
+                System.out.println("╠════════════════════════════════════════════╣");
+                System.out.println("║ 1. 📊 Taux d'occupation                    ║");
+                System.out.println("║ 2. 💰 Revenu total                         ║");
+                System.out.println("║ 3. 🏆 Chambre la plus réservée             ║");
+                System.out.println("║ 4. 👥 Client le plus fidèle                ║");
+                System.out.println("║ 5. ❌ Nombre d'annulations                 ║");
+                System.out.println("║ 6. 📈 Toutes les statistiques              ║");
+                System.out.println("║ 7. 🔙 Retour au menu principal             ║");
+                System.out.println("╚════════════════════════════════════════════╝");
+                System.out.print("👉 Votre choix : ");
+
+                int choix = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (choix) {
+                    case 1:
+                        afficherTauxOccupation(hotel, reservationsHotel);
+                        break;
+                    case 2:
+                        afficherRevenuTotal(facturesHotel);
+                        break;
+                    case 3:
+                        afficherChambrePlusReservee(hotel, reservationsHotel);
+                        break;
+                    case 4:
+                        afficherClientPlusFidele(hotel, reservationsHotel);
+                        break;
+                    case 5:
+                        afficherNombreAnnulations(reservationsHotel);
+                        break;
+                    case 6:
+                        afficherToutesStatistiques(hotel, reservationsHotel, facturesHotel);
+                        break;
+                    case 7:
+                        retour = true;
+                        break;
+                    default:
+                        System.out.println("❌ Choix invalide");
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ Erreur : " + e.getMessage());
+        }
+    }
+
+    private static void afficherTauxOccupation(Hotel hotel, List<Reservation> reservations) {
+        System.out.println("\n┌────────────────────────────────────────────┐");
+        System.out.println("│         TAUX D'OCCUPATION                   │");
+        System.out.println("└────────────────────────────────────────────┘");
+
+        int totalChambres = hotel.getChambres().size();
+        long chambresOccupees = reservations.stream()
+                .filter(r -> !r.isEstAnnulee())
+                .count();
+
+        double taux = totalChambres > 0 ? (chambresOccupees * 100.0) / totalChambres : 0;
+
+        System.out.println("🏨 Hôtel : " + hotel.getNom());
+        System.out.println("📊 Total chambres : " + totalChambres);
+        System.out.println("🔴 Chambres occupées : " + chambresOccupees);
+        System.out.println("🟢 Chambres libres : " + (totalChambres - chambresOccupees));
+        System.out.println("─────────────────────────────────────────────");
+        System.out.println("📈 Taux d'occupation : " + String.format("%.2f", taux) + "%");
+    }
+
+    private static void afficherRevenuTotal(List<Facture> factures) {
+        System.out.println("\n┌────────────────────────────────────────────┐");
+        System.out.println("│         REVENU TOTAL                        │");
+        System.out.println("└────────────────────────────────────────────┘");
+
+        double revenuTotal = factures.stream()
+                .mapToDouble(Facture::getTotalGeneral)
+                .sum();
+
+        double revenuPaye = factures.stream()
+                .filter(f -> f.getPaiement() != null)
+                .mapToDouble(Facture::getTotalGeneral)
+                .sum();
+
+        double revenuEnAttente = revenuTotal - revenuPaye;
+
+        System.out.println("💰 Revenu total généré : " + String.format("%.2f", revenuTotal) + "€");
+        System.out.println("✅ Revenu encaissé : " + String.format("%.2f", revenuPaye) + "€");
+        System.out.println("⏳ Revenu en attente : " + String.format("%.2f", revenuEnAttente) + "€");
+    }
+
+    private static void afficherChambrePlusReservee(Hotel hotel, List<Reservation> reservations) {
+        System.out.println("\n┌────────────────────────────────────────────┐");
+        System.out.println("│     CHAMBRE LA PLUS RÉSERVÉE                │");
+        System.out.println("└────────────────────────────────────────────┘");
+
+        if (reservations.isEmpty()) {
+            System.out.println("ℹ️  Aucune réservation pour cet hôtel");
+            return;
         }
 
-        long annulations = GestionReservations.getReservations().stream()
+        java.util.Map<Integer, Integer> comptage = new java.util.HashMap<>();
+        for (Reservation r : reservations) {
+            if (!r.isEstAnnulee()) {
+                int numChambre = r.getChambre().getNumero();
+                comptage.put(numChambre, comptage.getOrDefault(numChambre, 0) + 1);
+            }
+        }
+
+        if (comptage.isEmpty()) {
+            System.out.println("ℹ️  Aucune réservation active");
+            return;
+        }
+
+        int chambrePlusReservee = 0;
+        int maxReservations = 0;
+        for (java.util.Map.Entry<Integer, Integer> entry : comptage.entrySet()) {
+            if (entry.getValue() > maxReservations) {
+                maxReservations = entry.getValue();
+                chambrePlusReservee = entry.getKey();
+            }
+        }
+
+        Chambre ch = hotel.trouverChambre(chambrePlusReservee);
+        System.out.println("🏆 Chambre N°" + chambrePlusReservee +
+                " (" + (ch != null ? ch.getType() : "Inconnue") + ")");
+        System.out.println("📊 Nombre de réservations : " + maxReservations);
+    }
+
+    private static void afficherClientPlusFidele(Hotel hotel, List<Reservation> reservations) {
+        System.out.println("\n┌────────────────────────────────────────────┐");
+        System.out.println("│     CLIENT LE PLUS FIDÈLE                   │");
+        System.out.println("└────────────────────────────────────────────┘");
+
+        if (reservations.isEmpty()) {
+            System.out.println("ℹ️  Aucune réservation pour cet hôtel");
+            return;
+        }
+
+        java.util.Map<Client, Integer> comptage = new java.util.HashMap<>();
+        for (Reservation r : reservations) {
+            if (!r.isEstAnnulee()) {
+                Client client = r.getClient();
+                comptage.put(client, comptage.getOrDefault(client, 0) + 1);
+            }
+        }
+
+        if (comptage.isEmpty()) {
+            System.out.println("ℹ️  Aucun client trouvé");
+            return;
+        }
+
+        Client clientPlusFidele = null;
+        int maxSejours = 0;
+        for (java.util.Map.Entry<Client, Integer> entry : comptage.entrySet()) {
+            if (entry.getValue() > maxSejours) {
+                maxSejours = entry.getValue();
+                clientPlusFidele = entry.getKey();
+            }
+        }
+
+        if (clientPlusFidele != null) {
+            System.out.println("🏆 Client : " + clientPlusFidele.getPrenom() + " " + clientPlusFidele.getNom());
+            System.out.println("📧 Email : " + clientPlusFidele.getEmail());
+            System.out.println("📊 Réservations dans cet hôtel : " + maxSejours);
+            System.out.println("🎁 Réduction fidélité : " + (clientPlusFidele.getTauxReduction() * 100) + "%");
+        }
+    }
+
+    private static void afficherNombreAnnulations(List<Reservation> reservations) {
+        System.out.println("\n┌────────────────────────────────────────────┐");
+        System.out.println("│         NOMBRE D'ANNULATIONS                │");
+        System.out.println("└────────────────────────────────────────────┘");
+
+        long annulations = reservations.stream()
                 .filter(Reservation::isEstAnnulee)
                 .count();
-        System.out.println("❌ Nombre d'annulations : " + annulations);
 
+        long totales = reservations.size();
+        double pourcentage = totales > 0 ? (annulations * 100.0) / totales : 0;
+
+        System.out.println("❌ Réservations annulées : " + annulations);
+        System.out.println("📋 Total réservations : " + totales);
+        System.out.println("📈 Taux d'annulation : " + String.format("%.2f", pourcentage) + "%");
+    }
+
+    private static void afficherToutesStatistiques(Hotel hotel, List<Reservation> reservations, List<Facture> factures) {
+        System.out.println("\n╔════════════════════════════════════════════╗");
+        System.out.println("║         STATISTIQUES COMPLÈTES              ║");
+        System.out.println("║         " + hotel.getNom().toUpperCase());
         System.out.println("╚════════════════════════════════════════════╝");
-        System.out.print("Appuyez sur Entrée pour continuer...");
-        scanner.nextLine();
+
+        // Taux d'occupation
+        int totalChambres = hotel.getChambres().size();
+        long chambresOccupees = reservations.stream().filter(r -> !r.isEstAnnulee()).count();
+        double taux = totalChambres > 0 ? (chambresOccupees * 100.0) / totalChambres : 0;
+        System.out.println("📊 Taux d'occupation : " + String.format("%.2f", taux) + "%");
+
+        // Revenu
+        double revenuTotal = factures.stream().mapToDouble(Facture::getTotalGeneral).sum();
+        System.out.println("💰 Revenu total : " + String.format("%.2f", revenuTotal) + "€");
+
+        // Annulations
+        long annulations = reservations.stream().filter(Reservation::isEstAnnulee).count();
+        System.out.println("❌ Annulations : " + annulations);
+
+        // Total réservations
+        System.out.println("📋 Total réservations : " + reservations.size());
+
+        // Total chambres
+        System.out.println("🚪 Total chambres : " + totalChambres);
+
+        System.out.println("═══════════════════════════════════════════");
     }
 
     // Dans la méthode sauvegarderDonnees() :
@@ -890,32 +1075,27 @@ public class Main {
             System.out.println("✅ " + clientsCharges.size() + " client(s) chargé(s)");
         }
 
-        // ✅ Charger et ASSIGNER les réservations
-        @SuppressWarnings("unchecked")
+
         List<Reservation> reservationsChargees = (List<Reservation>) DataPersistence.charger("reservations.ser");
         if (reservationsChargees != null) {
             GestionReservations.setReservations(reservationsChargees);
             System.out.println("✅ " + reservationsChargees.size() + " réservation(s) chargée(s)");
         }
 
-        // ✅ Charger et ASSIGNER les factures
-        @SuppressWarnings("unchecked")
+
         List<Facture> facturesChargees = (List<Facture>) DataPersistence.charger("factures.ser");
         if (facturesChargees != null) {
             GestionFacturation.setFactures(facturesChargees);
             System.out.println("✅ " + facturesChargees.size() + " facture(s) chargée(s)");
         }
 
-        // ✅ Charger et ASSIGNER les hôtels (si modifié)
-        @SuppressWarnings("unchecked")
+
         List<Hotel> hotelsCharges = (List<Hotel>) DataPersistence.charger("hotels.ser");
         if (hotelsCharges != null) {
             GestionHotels.setHotels(hotelsCharges);
             System.out.println("✅ " + hotelsCharges.size() + " hôtel(s) chargé(s)");
         }
 
-        // ✅ Charger et ASSIGNER les avis
-        @SuppressWarnings("unchecked")
         List<Avis> avisCharges = (List<Avis>) DataPersistence.charger("avis.ser");
         if (avisCharges != null) {
             GestionAvis.setAvis(avisCharges);

@@ -4,12 +4,12 @@ import java.io.Serializable;
 
 public class Client implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String nom;
-    private String prenom;
-    private String email;
+    private final String nom;
+    private final String prenom;
+    private final String email;
     private int nombreSejours;
     private double tauxReduction;
-    private List<Reservation> historique;
+    private final List<Reservation> historique;
 
     public Client(String nom, String prenom, String email) {
         this.nom = nom;

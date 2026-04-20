@@ -6,15 +6,11 @@ public class GestionHotels implements Serializable {
     private static List<Hotel> hotels = new ArrayList<>();
 
     static {
-        // ✅ Les noms doivent correspondre exactement avec GestionChambres
         hotels.add(new Hotel("Grand Hôtel Paris", "123 Champs-Élysées", "Paris", 5));
         hotels.add(new Hotel("Hôtel Lyon Centre", "45 Rue de la République", "Lyon", 4));
         hotels.add(new Hotel("Hôtel Marseille Vue Mer", "78 Corniche Kennedy", "Marseille", 4));
     }
 
-    public static void ajouterHotel(Hotel hotel) {
-        hotels.add(hotel);
-    }
 
     public static Hotel trouverHotel(String nom) {
         for (Hotel h : hotels) {

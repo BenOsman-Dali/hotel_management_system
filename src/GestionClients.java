@@ -26,15 +26,4 @@ public class GestionClients implements Serializable {
         listeClients = clients != null ? clients : new ArrayList<>();
     }
 
-    public static void afficherTousLesClients() {
-        System.out.println("\n┌────────────────────────────────────────────┐");
-        System.out.println("│              LISTE DES CLIENTS             │");
-        System.out.println("└────────────────────────────────────────────┘");
-        for (Client c : listeClients) {
-            System.out.println("• " + c.getPrenom() + " " + c.getNom() +
-                    " | Email: " + c.getEmail() +
-                    " | Séjours: " + c.getNombreSejours() +
-                    " | Réduction: " + (c.getTauxReduction() * 100) + "%");
-        }
-    }
 }

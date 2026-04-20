@@ -1,5 +1,5 @@
 public class PaiementVirement implements Paiement {
-    private String iban;
+    private final String iban;
 
     public PaiementVirement(String iban) {
         this.iban = iban;

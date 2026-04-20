@@ -3,8 +3,6 @@ import java.time.YearMonth;
 import java.util.List;
 
 public class PlanningVisuel {
-
-    // ✅ Codes Couleur ANSI pour IntelliJ IDEA
     private static final String RESET = "\u001B[0m";
     private static final String GREEN = "\u001B[32m";      // Vert (Libre)
     private static final String RED = "\u001B[31m";        // Rouge (Occupée)
@@ -23,7 +21,6 @@ public class PlanningVisuel {
         System.out.println("║          " + BOLD + premierJour.getMonth().toString().toUpperCase() + " " + annee + RESET);
         System.out.println("╠════════════════════════════════════════════════════════════════════════════╣");
 
-        // En-tête des dates
         System.out.print("Chambre  | ");
         for (int i = 1; i <= joursDansMois; i++) {
             System.out.print(String.format("%3d", i) + "|");
@@ -31,7 +28,6 @@ public class PlanningVisuel {
         System.out.println();
         System.out.println("─────────┼" + "───".repeat(joursDansMois));
 
-        // Lignes par chambre
         for (Chambre ch : hotel.getChambres()) {
             System.out.print("Ch. " + String.format("%3d", ch.getNumero()) + " | ");
             for (int i = 1; i <= joursDansMois; i++) {

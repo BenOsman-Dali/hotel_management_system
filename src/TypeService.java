@@ -12,12 +12,11 @@ public enum TypeService {
         this.prixBase = prixBase;
     }
 
-    // ✅ AJOUTER CETTE MÉTHODE
+
     public String getLibelle() {
         return libelle;
     }
 
-    // ✅ CETTE MÉTHODE DOIT AUSSI EXISTER
     public double getPrixBase() {
         return prixBase;
     }

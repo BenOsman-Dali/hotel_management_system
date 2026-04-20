@@ -25,15 +25,6 @@ public class GestionFacturation implements Serializable {
         return factures;
     }
 
-    // ✅ NOUVELLE MÉTHODE : Vérifier si une réservation est déjà facturée
-    public static boolean estDejaFacturee(Reservation reservation) {
-        for (Facture f : factures) {
-            if (f.getReservation() == reservation) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public static void setFactures(List<Facture> facturesChargees) {
     }

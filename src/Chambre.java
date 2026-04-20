@@ -1,4 +1,6 @@
 import java.io.Serializable;
+import java.time.LocalDate;
+
 public abstract class Chambre implements Serializable {
     private static final long serialVersionUID = 1L;
     protected int numero;
@@ -22,19 +24,38 @@ public abstract class Chambre implements Serializable {
 
     public abstract String getType();
 
-    // Ajouter cette méthode dans Chambre.java :
     public double getPrixParNuitAvecSaison(java.time.LocalDate date) {
         Saison saison = Saison.determinerSaison(date);
         return prixParNuit * saison.getMultiplicateur();
     }
 
-    public double getPrixTotalSejour(java.time.LocalDate debut, java.time.LocalDate fin) {
+    public double getPrixTotalSejour(LocalDate debut, LocalDate fin) {
         double total = 0;
-        java.time.LocalDate current = debut;
+        LocalDate current = debut;
         while (current.isBefore(fin)) {
             total += getPrixParNuitAvecSaison(current);
             current = current.plusDays(1);
         }
         return total;
+    }
+
+    public Saison getSaisonDominante(LocalDate debut, LocalDate fin) {
+        java.util.Map<Saison, Integer> comptage = new java.util.HashMap<>();
+        LocalDate current = debut;
+        while (current.isBefore(fin)) {
+            Saison s = Saison.determinerSaison(current);
+            comptage.put(s, comptage.getOrDefault(s, 0) + 1);
+            current = current.plusDays(1);
+        }
+
+        Saison dominante = Saison.BASSE;
+        int maxJours = 0;
+        for (java.util.Map.Entry<Saison, Integer> entry : comptage.entrySet()) {
+            if (entry.getValue() > maxJours) {
+                maxJours = entry.getValue();
+                dominante = entry.getKey();
+            }
+        }
+        return dominante;
     }
 }
